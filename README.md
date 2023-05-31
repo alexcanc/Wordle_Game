@@ -38,7 +38,7 @@ To play the Wordle game, you need to have Ruby and the Gosu gem installed on you
 
 5. Run the following command to launch the game:
   
-  ```bash
+   ```bash
    ruby wordle_game.rb
    ```
    Make sure you are in the same directory as the wordle_game.rb file.
