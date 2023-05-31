@@ -5,6 +5,8 @@ class WordleGame < Gosu::Window
     super 900, 700
     self.caption = "Wordle Game"
 
+    @dictionary = File.readlines("dictionary.txt").map(&:chomp)
+
     @font_title = Gosu::Font.new(60)
     @font_letters = Gosu::Font.new(40)
     @font_text = Gosu::Font.new(20)
@@ -14,7 +16,7 @@ class WordleGame < Gosu::Window
     @start_x = (self.width - 5 * @square_size - 40) / 2
     @start_y = (self.height - 6 * @square_size - 50) / 2 + 5
 
-    @target_word = "HELLO"
+    @target_word = @dictionary.sample.upcase
     @current_row = 0
     @current_position = 0
     @letters_to_draw = Array.new(30) { { letter: "", color: Gosu::Color::WHITE } }
@@ -58,7 +60,7 @@ class WordleGame < Gosu::Window
     restart_width = @font_text.text_width(restart_text)
 
     box_width = [game_over_width, restart_width].max + 2 * 10
-    box_height = @font_title.height + @font_text.height + 3 * 10
+    box_height = @font_title.height + @font_text.height + 3 * 20
 
     box_x = (self.width - box_width) / 2
     box_y = (self.height - box_height) / 2
@@ -72,6 +74,11 @@ class WordleGame < Gosu::Window
     restart_x = box_x + (box_width - restart_width) / 2
     restart_y = game_over_y + @font_title.height + 10
     @font_text.draw_text(restart_text, restart_x, restart_y, 1, 1, 1, Gosu::Color::WHITE)
+
+    target_word_text = "The word was: #{@target_word}"
+    target_word_x = box_x + (box_width - @font_text.text_width(target_word_text)) / 2
+    target_word_y = restart_y + @font_text.height + 10
+    @font_text.draw_text(target_word_text, target_word_x, target_word_y, 1, 1, 1, Gosu::Color::WHITE)
 
     return # Exit the method to prevent displaying the win message
   end
@@ -112,6 +119,7 @@ class WordleGame < Gosu::Window
   end
 
   def restart_game
+    @target_word = @dictionary.sample.upcase
     @current_row = 0
     @current_position = 0
     @tries_remaining = 6
@@ -155,10 +163,10 @@ class WordleGame < Gosu::Window
   end
 
   def update_squares(letter)
-    return if @game_over || letter.nil?
+    return if @game_over || !letter.match?(/[A-Za-z]/)
 
     if @current_position < 5
-      @letters_to_draw[@current_row * 5 + @current_position][:letter] = letter
+      @letters_to_draw[@current_row * 5 + @current_position][:letter] = letter.upcase
       @current_position += 1
     end
   end
